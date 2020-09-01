@@ -921,7 +921,7 @@ public:
 	// Thread-safe.
 	inline bool enqueue(T&& item)
 	{
-		if (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) return false;
+		if constexpr (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) return false;
 		return inner_enqueue<CanAlloc>(std::move(item));
 	}
 	
@@ -1482,7 +1482,7 @@ private:
 		template<InnerQueueContext context>
 		inline bool is_empty() const
 		{
-			if (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
+			if constexpr (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
 				// Check flags
 				for (size_t i = 0; i < BLOCK_SIZE; ++i) {
 					if (!emptyFlags[i].load(std::memory_order_relaxed)) {
@@ -1564,7 +1564,7 @@ private:
 		template<InnerQueueContext context>
 		inline void reset_empty()
 		{
-			if (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
+			if constexpr (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
 				// Reset flags
 				for (size_t i = 0; i != BLOCK_SIZE; ++i) {
 					emptyFlags[i].store(false, std::memory_order_relaxed);
@@ -3015,11 +3015,11 @@ private:
 			return block;
 		}
 		
-		if (canAlloc == CanAlloc) {
+		if constexpr (canAlloc == CanAlloc) {
 			return create<Block>();
 		}
-		
-		return nullptr;
+		//unreachable
+		//return nullptr;
 	}
 	
 
