@@ -785,7 +785,7 @@ public:
 		}
 		
 		// Destroy implicit producer hash tables
-		if (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE != 0) {
+		if constexpr (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE != 0) {
 			auto hash = implicitProducerHash.load(std::memory_order_relaxed);
 			while (hash != nullptr) {
 				auto prev = hash->prev;
@@ -921,7 +921,7 @@ public:
 	// Thread-safe.
 	inline bool enqueue(T&& item)
 	{
-		if (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) return false;
+		if constexpr (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) return false;
 		return inner_enqueue<CanAlloc>(std::move(item));
 	}
 	
@@ -1482,7 +1482,7 @@ private:
 		template<InnerQueueContext context>
 		inline bool is_empty() const
 		{
-			if (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
+			if constexpr (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
 				// Check flags
 				for (size_t i = 0; i < BLOCK_SIZE; ++i) {
 					if (!emptyFlags[i].load(std::memory_order_relaxed)) {
@@ -1509,7 +1509,7 @@ private:
 		template<InnerQueueContext context>
 		inline bool set_empty(index_t i)
 		{
-			if (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
+			if constexpr (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
 				// Set flag
 				assert(!emptyFlags[BLOCK_SIZE - 1 - static_cast<size_t>(i & static_cast<index_t>(BLOCK_SIZE - 1))].load(std::memory_order_relaxed));
 				emptyFlags[BLOCK_SIZE - 1 - static_cast<size_t>(i & static_cast<index_t>(BLOCK_SIZE - 1))].store(true, std::memory_order_release);
@@ -1564,7 +1564,7 @@ private:
 		template<InnerQueueContext context>
 		inline void reset_empty()
 		{
-			if (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
+			if constexpr (context == explicit_context && BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD) {
 				// Reset flags
 				for (size_t i = 0; i != BLOCK_SIZE; ++i) {
 					emptyFlags[i].store(false, std::memory_order_relaxed);
@@ -3015,7 +3015,7 @@ private:
 			return block;
 		}
 		
-		if (canAlloc == CanAlloc) {
+		if constexpr (canAlloc == CanAlloc) {
 			return create<Block>();
 		}
 		
@@ -3248,7 +3248,7 @@ private:
 	
 	inline void populate_initial_implicit_producer_hash()
 	{
-		if (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) return;
+		if constexpr (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) return;
 		
 		implicitProducerHashCount.store(0, std::memory_order_relaxed);
 		auto hash = &initialImplicitProducerHash;
